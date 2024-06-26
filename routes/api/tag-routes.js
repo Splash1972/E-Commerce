@@ -3,36 +3,46 @@ const { Tag, Product, ProductTag } = require('../../models');
 
 // The `/api/tags` endpoint
 
-router.get('/', async (req, res) => {
-  try {
-    // Find all tags and include associated ProductTag data
-    const tags = await Tag.findAll({ include: ProductTag });
-
-    // Send the response with the fetched tags
-    res.json(tags);
-  } catch (error) {
-    console.error(error);
+router.get('/', (req, res) => {
+  Tag.findAll({
+    attributes: ['id', 'tag_name'],
+    include: [
+      {
+        model: Product,
+        attributes: ['id', 'product_name']
+      }
+    ]
+  })
+    .then(tagData => res.json(tagData))
+    .catch(err => {
+    console.error(err);
     res.status(500).json({ error: 'Server error' });
-  }
+  });
 });
 
 router.get('/:id', async (req, res) => {
-  const tagId = req.params.id;
-
-  try {
-    // Find a single tag by its id and include associated ProductTag data
-    const tag = await Tag.findOne({ where: { id: tagId }, include: ProductTag });
-
-    if (!tag) {
-      return res.status(404).json({ error: 'Tag not found' });
+  Tag.findOne({
+    where:{
+      id: req.params.id
+    }, 
+    include: [
+      {
+        model: Product, 
+        attributes: ['product_name', 'price', 'stock']
+      }
+    ]
+  })
+  .then(tagData => {
+    if (!tagData) {
+      res.status(404).json({message: 'no tag found with this id'});
+      return;
     }
-
-    // Send the response with the fetched tag
-    res.json(tag);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Server error' });
-  }
+    res.json(tagData);
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });
 });
 
 router.post('/', async (req, res) => {

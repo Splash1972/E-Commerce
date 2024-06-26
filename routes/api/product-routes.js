@@ -7,6 +7,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 router.get('/', async (req, res) => {
   try {
     const products = await Product.findAll({
+      attributes: ['id', 'product_name', 'price', 'stock'],
       include: [
         { model: Category },
         { model: Tag }
@@ -43,24 +44,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// create new product
 router.post('/', async (req, res) => {
-  const { product_name, price, stock, tagIds } = req.body;
-
   try {
-    const newProduct = await Product.create({
-      product_name,
-      price,
-      stock
-    });
+    const product = await Product.create(req.body);
 
-    if (tagIds && tagIds.length > 0) {
-      const tags = await Tag.findAll({ where: { id: tagIds } });
-      await newProduct.addTags(tags);
+    if (req.body.tagIds && req.body.tagIds.length) {
+      const productTagIdArr = req.body.tagIds.map((tag_id) => {
+        return {
+          product_id: product.id,
+          tag_id,
+        };
+      });
+      await ProductTag.bulkCreate(productTagIdArr);
     }
 
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error(error);
+    res.status(200).json(product);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 });
