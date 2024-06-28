@@ -15,6 +15,6 @@ I used the Xpert Learning Assistant supplied with the bootcamp to assist with ce
 
 # Walkthrough Video Link:
 
-https://watch.screencastify.com/v/Vbo74Bz67ItPdl6efuuw
+https://drive.google.com/file/d/1g6CVOOnfkizIMSoW7UJqKmn3ue_8LCdH/view
 
 # Technologies used:  Express, Sequelize, dotenv, Postman
